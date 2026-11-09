@@ -464,7 +464,7 @@ function step(run) {
 
 /* ---------- game flow ---------- */
 function show(id) { ['startOv', 'pauseOv', 'endOv'].forEach(o => $(o).hidden = o !== id); ['hudTL', 'hudTC', 'hudTR', 'hudB'].forEach(h => $(h).hidden = id !== null); }
-function start() {
+function start() { gcEvent('start');
   try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); actx.resume(); } catch (e) {}
   resetPlayer(); placeCow(); S.L = 0; S.lightsAt = Infinity; S.won = false; S.found = false; S.closest = Infinity; S.elapsed = 0; lastTileKey = '';
   song.currentTime = 0; song.volume = 1; const p = song.play(); if (p) p.catch(() => {});
@@ -474,7 +474,7 @@ function start() {
 }
 function pause() { if (S.phase !== 'play') return; S.phase = 'pause'; song.pause(); show('pauseOv'); }
 function resume() { S.phase = 'play'; show(null); song.play().catch(() => {}); if (!isTouch) canvas.requestPointerLock?.()?.catch?.(() => {}); }
-function finish(won) {
+function finish(won) { gcEvent(won ? 'found' : 'lost');
   if (S.phase !== 'play') return; S.phase = won ? 'end' : 'lost'; S.won = won; S.moving = false;
   if (won) { C.mode = 'found'; C.headDown = 0; C.heading = Math.atan2(S.pz - C.z, S.px - C.x); }
   $('endOv').classList.add('win'); document.exitPointerLock?.();
@@ -643,5 +643,8 @@ window.__koe = { S, C, camera, setView(px, pz, yaw, pitch) { S.px = px; S.pz = p
 })();
 </script>
 
+<script>function gcEvent(n){try{if(window.goatcounter&&window.goatcounter.count)window.goatcounter.count({path:'find-the-cow/'+n,title:n,event:true});}catch(e){}}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('#againBtn,#albumBtn');if(t)gcEvent(t.id==='againBtn'?'play-again':'album');},true);</script>
+<script data-goatcounter="https://dasisland.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
